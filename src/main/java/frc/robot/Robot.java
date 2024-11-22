@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
 
     for (int i = 0; i < ledLen; i++) {
       // this goes through each led in the data and sets it to red
-      ledBuffer.setHSV(i,i*25,100,100);
+      ledBuffer.setHSV(i,i*25,255,255);
     }
 
     // this sets the colors that the led will use
