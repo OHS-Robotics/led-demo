@@ -6,7 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -19,9 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
+  private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(6);
+  private AddressableLED led = new AddressableLED(1);
+  private final int ledLen = ledBuffer.getLength();
+  private int offset = 0;
+  private int offsetAccumulator = 0;
+  private XboxController controller = new XboxController(0);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -31,19 +37,20 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-
     /* This part is the example code */
     // this variable lets us interact with the LED at port 9. think of it as a pipe we can send commands through or something.
-    AddressableLED led = new AddressableLED(1);
     // this variable holds the data that we send to the led. think of it like a list of colors that we tell the led to show. the 60 is the length of the led buffer.
-    AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(6);
     // the led needs to know how long it is for reasons unknown to me.
-    int ledLen = ledBuffer.getLength();
     led.setLength(ledLen);
 
     for (int i = 0; i < ledLen; i++) {
-      // this goes through each led in the data and sets it to red
-      ledBuffer.setHSV(i,i*25,255,255);
+      // this goes through each led in the data and sets it to off, unless it's the current led to light up.
+      if (offset == i) {
+        ledBuffer.setRGB(i, 255, 255, 255);
+      }
+      else {
+        ledBuffer.setRGB(i, 0, 0, 0);
+      }
     }
 
     // this sets the colors that the led will use
@@ -52,70 +59,39 @@ public class Robot extends TimedRobot {
     led.start();
   }
 
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {}
-
-  /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
-   */
-  @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-  }
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
-  }
-
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {}
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    // if we just move the light every time this function is called, it would be very flashy
+    // as it's called every 20 milliseconds(50 times per second!)
+    // we increment this accumulator, and if it's more than 5 we allow the light to change.
+    // this makes the light only change every 100 ms, which is 10 times per second
+    offsetAccumulator++;
+    // change the offset of the light to light up, but only if the "a" button on the controller is pressed. This also resets the accumulator.
+    if (controller.getAButton() && offsetAccumulator >= 10) {
+      offset++;
+      offsetAccumulator = 0;
+    }
 
-  /** This function is called once when the robot is disabled. */
-  @Override
-  public void disabledInit() {}
+    offset = offset % (ledLen); // if the offset is larger than the length of the light strip, it wraps arounds around
 
-  /** This function is called periodically when disabled. */
-  @Override
-  public void disabledPeriodic() {}
+      for (int i = 0; i < ledLen; i++) {
+        // this goes through each led in the data and sets it to off, unless it's the current led to light up.
+        if (offset == i) {
+          ledBuffer.setRGB(i, 255, 255, 255);
+        }
+        else {
+          ledBuffer.setRGB(i, 0, 0, 0);
+        }
+      }
 
-  /** This function is called once when test mode is enabled. */
-  @Override
-  public void testInit() {}
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
+    // this sets the colors that the led will use
+    led.setData(ledBuffer);
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
@@ -123,5 +99,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    teleopPeriodic();
+  }
 }
