@@ -58,32 +58,33 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // challenge: convert this into one for loop
-    if (controller.getRawButton(0)) {
-      ledBuffer.setRGB(0, 255, 255, 255); // if button 0 on the controller is pressed, turn the first light on
-    }
-    else {
-      ledBuffer.setRGB(0, 0, 0, 0); // otherwise turn it on
-    }
 
     if (controller.getRawButton(1)) {
-      ledBuffer.setRGB(1, 255, 255, 255); // if button 1 on the controller is pressed, turn the second light on
+      ledBuffer.setRGB(0, 255, 255, 255); // if button 1 on the controller is pressed, turn the first light on
     }
     else {
-      ledBuffer.setRGB(1, 0, 0, 0); // otherwise turn it on
+      ledBuffer.setRGB(0, 0, 0, 0); // otherwise turn it off
     }
 
     if (controller.getRawButton(2)) {
-      ledBuffer.setRGB(2, 255, 255, 255); // if button 2 on the controller is pressed, turn the third light on
+      ledBuffer.setRGB(1, 255, 255, 255); // if button 2 on the controller is pressed, turn the second light on
     }
     else {
-      ledBuffer.setRGB(2, 0, 0, 0); // otherwise turn it on
+      ledBuffer.setRGB(1, 0, 0, 0); // otherwise turn it off
     }
 
     if (controller.getRawButton(3)) {
-      ledBuffer.setRGB(3, 255, 255, 255); // if button 3 on the controller is pressed, turn the fourth light on
+      ledBuffer.setRGB(2, 255, 255, 255); // if button 3 on the controller is pressed, turn the third light on
     }
     else {
-      ledBuffer.setRGB(3, 0, 0, 0); // otherwise turn it on
+      ledBuffer.setRGB(2, 0, 0, 0); // otherwise turn it off
+    }
+
+    if (controller.getRawButton(4)) {
+      ledBuffer.setRGB(3, 255, 255, 255); // if button 4 on the controller is pressed, turn the fourth light on
+    }
+    else {
+      ledBuffer.setRGB(3, 0, 0, 0); // otherwise turn it off
     }
 
 
