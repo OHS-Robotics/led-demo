@@ -32,13 +32,9 @@ public class Robot extends TimedRobot {
     // the led needs to know how long it is for reasons unknown to me.
     led.setLength(6);
 
-    // set the leds to arbitrary values
-    ledBuffer.setRGB(0, 0, 0, 0);
-    ledBuffer.setRGB(1, 255, 0, 0);
-    ledBuffer.setRGB(2, 255, 255, 0);
-    ledBuffer.setRGB(3, 255, 255, 255);
-    ledBuffer.setRGB(4, 0, 255, 255);
-    ledBuffer.setRGB(5, 0, 0, 255);
+    for (int i = 0; i < 6; i += 1) {
+      ledBuffer.setRGB(i, 255, 0, 0);
+    }
 
     // this sets the colors that the led will use
     led.setData(ledBuffer);
